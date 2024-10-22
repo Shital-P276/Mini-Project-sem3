@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display 3D Model with Camera Controls</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Include Three.js and OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <script>
+        // Set up the basic elements: scene, camera, renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Add lighting to the scene
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(1, 1, 1).normalize();
+        scene.add(light);
+
+        // Load the .glb model using GLTFLoader
+        const loader = new THREE.GLTFLoader();
+        loader.load("/As/india.glb", function(gltf) {
+            scene.add(gltf.scene); // Add the loaded 3D model to the scene
+            gltf.scene.scale.set(1, 1, 1); // Optional: Scale the model (adjust if needed)
+        }, undefined, function(error) {
+            console.error('An error occurred:', error); // Handle errors
+        });
+
+        // Set the camera position
+        camera.position.z = 5;
+
+        // Initialize OrbitControls to allow camera interaction
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth the controls (optional)
+        controls.dampingFactor = 0.05; // Adjust damping (optional)
+        controls.screenSpacePanning = false; // Enable or disable panning in screen space
+        controls.minDistance = 2; // Set minimum zoom distance
+        controls.maxDistance = 10; // Set maximum zoom distance
+
+        // Create an animation loop to continuously render the scene
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update controls (important for damping)
+            controls.update();
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
